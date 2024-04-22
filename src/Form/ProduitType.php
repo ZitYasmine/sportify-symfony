@@ -21,17 +21,17 @@ class ProduitType extends AbstractType
             ->add('description')
             ->add('imageFile', FileType::class, [
                 'label' => 'Image (JPEG or PNG file)',
-                'mapped' => false, // This field is not mapped to any entity property
-                'required' => false, // The image is optional
-                'attr' => ['accept' => 'image/jpeg, image/png'], // Allow only JPEG and PNG files
+                'mapped' => false, 
+                'required' => false, 
+                'attr' => ['accept' => 'image/jpeg, image/png'], 
             ])
             ->add('prix', NumberType::class, [
                 'label' => 'Prix',
-                'html5' => true, // Enable HTML5 validation attributes
+                'html5' => true, 
                 'attr' => [
-                    'type' => 'number', // Set input type to number
-                    'step' => '0.01', // Define the step size for decimal numbers
-                    'min' => '0', // Set minimum value
+                    'type' => 'number', 
+                    'step' => '0.01', 
+                    'min' => '0', 
                     'placeholder' => 'Enter price',
                 ],
                 'constraints' => [

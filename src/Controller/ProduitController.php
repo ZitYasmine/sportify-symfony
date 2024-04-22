@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use App\Service\SmsService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/produit')]
 class ProduitController extends AbstractController
@@ -23,20 +24,46 @@ class ProduitController extends AbstractController
         $this->smsService = $smsService;
     }
 
+
     #[Route('/', name: 'app_produit_index', methods: ['GET'])]
     public function index(Request $request, ProduitRepository $produitRepository): Response
     {
+        // Check if it's an AJAX request
+        if ($request->isXmlHttpRequest()) {
+            $filter = $request->query->get('filter');
+            $orderBy = $request->query->get('orderBy', 'nom');
+    
+            // Fetch products with additional properties like name and price
+            $produits = $produitRepository->findByFilterAndOrder($filter, $orderBy);
+    
+            // Serialize the data to JSON
+            $data = [];
+            foreach ($produits as $produit) {
+                $data[] = [
+                    'id' => $produit->getId(),
+                    'image' => $produit->getImage(),
+                    'name' => $produit->getNom(), // Include name property
+                    'price' => $produit->getPrix(), // Include price property
+                    // Add more properties as needed
+                ];
+            }
+    
+            return new JsonResponse($data);
+        }
+    
+        // Handle non-AJAX requests by rendering the HTML template
         $filter = $request->query->get('filter');
         $orderBy = $request->query->get('orderBy', 'nom');
-
+    
         $produits = $produitRepository->findByFilterAndOrder($filter, $orderBy);
-
+    
         return $this->render('produit/index.html.twig', [
             'produits' => $produits,
             'filter' => $filter,
             'orderBy' => $orderBy,
         ]);
     }
+    
    
 
     #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
@@ -51,7 +78,7 @@ class ProduitController extends AbstractController
 
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // Generate a unique filename to prevent overwriting existing files
+               
                 $newFilename = $originalFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
@@ -60,23 +87,21 @@ class ProduitController extends AbstractController
                         $newFilename
                     );
                 } catch (FileException $e) {
-                    // Handle file exception
+                    
                 }
 
                 $produit->setImage('images/' . $newFilename);
             }
 
-            // Persist the Produit entity
+           
             $entityManager->persist($produit);
             $entityManager->flush();
 
-            // Send SMS notification
-          //  $this->smsService->sendSms('21655680040', 'A new product has been created.');
 
             return $this->redirectToRoute('app_produit_index');
         }
 
-        // Render the new produit form template
+     
         return $this->renderForm('produit/new.html.twig', [
             'produit' => $produit,
             'form' => $form,
