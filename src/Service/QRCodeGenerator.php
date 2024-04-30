@@ -25,7 +25,7 @@ class QRCodeGenerator
         $nom = $produit->getNom();
         $value = $strValue ; 
         $description = $produit->getDescription() ;
-        $category = $produit->getCategorie() ;
+        $category = $produit->getCategorie()->getNom() ;
         $data = "Nom: " . $nom . "\n" . "Value: " . $value . "DT". "\n" . "Description: " . $description . "\n" . "Category: " . $category;
         
 
@@ -35,7 +35,7 @@ class QRCodeGenerator
             ->build();
         
         $qrName = $produit->getNom() . '.png';
-        $qrPath = \dirname(__DIR__, 3) . '/public/qrcodes/';
+        $qrPath = \dirname(__DIR__,2) . '/public/qrcode';
         
         // Check if the directory exists, if not, create it
         if (!$this->filesystem->exists($qrPath)) {
