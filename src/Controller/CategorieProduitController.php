@@ -10,15 +10,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/categorie/produit')]
 class CategorieProduitController extends AbstractController
 {
     #[Route('/', name: 'app_categorie_produit_index', methods: ['GET'])]
-    public function index(CategorieProduitRepository $categorieProduitRepository): Response
+    public function index(Request $request, CategorieProduitRepository $categorieProduitRepository, PaginatorInterface $paginator): Response
     {
+        $queryBuilder = $categorieProduitRepository->createQueryBuilder('cp');
+
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $queryBuilder->getQuery(), // Doctrine Query, not result
+            $request->query->getInt('page', 1), // Define the page parameter
+            1 // Items per page
+        );
+    
+        // Render the view with the pagination
         return $this->render('categorie_produit/index.html.twig', [
-            'categorie_produits' => $categorieProduitRepository->findAll(),
+            'pagination' => $pagination,
         ]);
     }
 

@@ -46,7 +46,7 @@ class ProduitRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-public function findByFilterAndOrder($filter = null, $orderBy = 'nom'): array
+public function findByFilterAndOrder($filter = null, $orderBy = 'nom', $orderDirection = 'asc'): array
 {
     $qb = $this->createQueryBuilder('p');
 
@@ -56,9 +56,23 @@ public function findByFilterAndOrder($filter = null, $orderBy = 'nom'): array
     }
 
     // Order by the specified field and direction
-    $qb->orderBy('p.'.$orderBy, 'ASC');
+    $qb->orderBy('p.'.$orderBy, $orderDirection);
 
     return $qb->getQuery()->getResult();
 }
+
+/**
+     * Find all products ordered by price in descending order.
+     *
+     * @return Produit[]
+     */
+    public function findAllOrderedByPriceDesc(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.prix', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 
 }

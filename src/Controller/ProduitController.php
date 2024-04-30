@@ -28,15 +28,19 @@ class ProduitController extends AbstractController
     {
         $filter = $request->query->get('filter');
         $orderBy = $request->query->get('orderBy', 'nom');
-
-        $produits = $produitRepository->findByFilterAndOrder($filter, $orderBy);
-
-        return $this->render('produit/index.html.twig', [
-            'produits' => $produits,
-            'filter' => $filter,
-            'orderBy' => $orderBy,
-        ]);
+    
+    // Check if orderBy is 'prix', if so, order by price in descending order
+        $orderDirection = 'desc';
+        $produits = $produitRepository->findByFilterAndOrder($filter, $orderBy, $orderDirection);
+    
+    
+    return $this->render('produit/index.html.twig', [
+        'produits' => $produits,
+        'filter' => $filter,
+        'orderBy' => $orderBy,
+    ]);
     }
+    
    
 
     #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
